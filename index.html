@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS VPN — Безопасный интернет</title>
+  <meta name="description" content="Защита данных с протоколом VLESS + Reality. Быстрое подключение через Telegram-бот за 30 секунд. Серверы в Европе, до 1 Гбит/с.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="NEXUS VPN — Безопасный интернет">
+  <meta property="og:description" content="Защита данных с протоколом VLESS + Reality. Подключение через Telegram-бот за 30 секунд.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vpn.nexus-system.ru">
+  <meta property="og:locale" content="ru_RU">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    /* ===== MOBILE PERF ===== */
+    body { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+    section { will-change: auto; }
+
+    /* ===== STICKY MOBILE CTA ===== */
+    .mobile-sticky-cta {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(5,10,24,0.98) 60%, rgba(5,10,24,0));
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      pointer-events: none;
+    }
+    .mobile-sticky-cta.show { transform: translateY(0); pointer-events: auto; }
+    .mobile-sticky-cta a { min-height: 52px; }
+    @media (min-width: 768px) { .mobile-sticky-cta { display: none !important; } }
+
+    /* ===== NOISE TEXTURE (desktop only) ===== */
+    @media (min-width: 768px) {
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.5;
+      }
+    }
+
+    /* ===== AURORA GLOW ===== */
+    .aurora {
+      position: relative;
+      overflow: hidden;
+    }
+    .aurora::before {
+      content: '';
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      top: -25%;
+      left: -25%;
+      background:
+        radial-gradient(ellipse at 15% 50%, rgba(99,102,241,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 20%, rgba(6,182,212,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(139,92,246,0.05) 0%, transparent 50%);
+      animation: auroraDrift 25s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes auroraDrift {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(3%, -2%) rotate(1deg); }
+      66% { transform: translate(-2%, 1.5%) rotate(-0.5deg); }
+    }
+    /* Disable aurora animation on mobile for perf */
+    @media (max-width: 767px) {
+      .aurora::before { animation: none; }
+    }
+
+    /* ===== GLASS CARD ===== */
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* backdrop-filter only on desktop — causes jank on mobile */
+    @media (min-width: 768px) {
+      .glass {
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+      }
+    }
+    @media (min-width: 768px) {
+      .glass:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(99,102,241,0.4);
+        box-shadow: 0 0 60px rgba(99,102,241,0.08), 0 20px 60px rgba(0,0,0,0.4);
+        transform: translateY(-4px);
+      }
+    }
+
+    /* ===== ANIMATED GRADIENT BORDER (desktop only) ===== */
+    .gradient-border { position: relative; }
+    @media (min-width: 768px) {
+      .gradient-border::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(99,102,241,0.5), rgba(6,182,212,0.5), rgba(139,92,246,0.5));
+        background-size: 200% 200%;
+        animation: borderGlow 6s ease-in-out infinite;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s;
+      }
+      .gradient-border:hover::before { opacity: 1; }
+    }
+    @keyframes borderGlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* ===== CTA GLOW ===== */
+    .cta-glow { position: relative; overflow: hidden; }
+    .cta-glow::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, #6366f1, #06b6d4, #8b5cf6);
+      z-index: -1;
+      filter: blur(20px);
+      opacity: 0.5;
+      transition: opacity 0.4s;
+    }
+    .cta-glow:hover::before { opacity: 0.8; }
+    @media (min-width: 768px) {
+      .cta-glow::after {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+        transform: rotate(30deg) translateX(-100%);
+        transition: transform 0.6s;
+      }
+      .cta-glow:hover::after { transform: rotate(30deg) translateX(100%); }
+    }
+
+    /* ===== NAV ===== */
+    .nav-glass {
+      background: rgba(5,10,24,0.85);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (min-width: 768px) {
+      .nav-glass {
+        background: rgba(5,10,24,0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+    }
+
+    /* ===== BADGES ===== */
+    .badge-glow {
+      box-shadow: 0 0 20px rgba(99,102,241,0.2), inset 0 0 20px rgba(99,102,241,0.05);
+    }
+    .badge-popular {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+    }
+
+    /* ===== REVEAL ANIMATION ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== SCROLL INDICATOR ===== */
+    .scroll-hint { transition: opacity 0.5s; }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(10px); opacity: 1; }
+    }
+    .scroll-chevrons { animation: scrollBounce 2s ease-in-out infinite; }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.15) 30%, rgba(6,182,212,0.15) 70%, transparent);
+    }
+
+    /* ===== MOBILE FALLBACK BG ===== */
+    .mobile-bg-fallback {
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 60%, rgba(6,182,212,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 90%, rgba(139,92,246,0.06) 0%, transparent 50%);
+    }
+
+    /* ===== DEVICE ICON ===== */
+    .device-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    @media (min-width: 768px) {
+      .device-card:hover {
+        border-color: rgba(99,102,241,0.3);
+        background: rgba(255,255,255,0.04);
+      }
+    }
+
+    /* ===== MOBILE TOUCH TARGETS & READABILITY ===== */
+    @media (max-width: 767px) {
+      /* Touch targets: buttons and nav links only */
+      button, .cta-glow, [class*="rounded-xl"][href] { min-height: 48px; }
+      #mobileMenu a { min-height: 48px; display: flex; align-items: center; }
+      /* Readability */
+      body { font-size: 16px; }
+      p, li { line-height: 1.65; }
+      /* Reduce excessive whitespace on mobile */
+      .py-20 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+    }
+
+    /* ===== REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .aurora::before { animation: none; }
+      .cta-glow::after { transition: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .scroll-chevrons { animation: none; }
+    }
+  </style>
+</head>
+<body class="bg-[#050A18] text-slate-300 font-sans antialiased overflow-x-hidden">
+
+  <!-- ========== BACKGROUND ========== -->
+  <!-- Desktop: Vanta.js WebGL | Mobile: CSS gradient (no WebGL = no jank) -->
+  <div id="vanta-bg" class="fixed inset-0 z-0 mobile-bg-fallback"></div>
+  <canvas id="pulse-canvas" class="fixed inset-0 z-[1] pointer-events-none hidden md:block"></canvas>
+
+  <!-- ========== CONTENT WRAPPER ========== -->
+  <div class="relative z-10">
+
+    <!-- ========== NAV (scrolls away, not fixed) ========== -->
+    <nav class="absolute top-5 left-4 right-4 sm:left-5 sm:right-5 z-50">
+      <div class="max-w-6xl mx-auto nav-glass rounded-2xl px-5 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between">
+        <a href="#" class="text-base sm:text-lg font-bold text-white tracking-[0.2em] cursor-pointer">
+          NEXUS <span class="text-indigo-400">VPN</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-sm">
+          <a href="#features" class="text-slate-400 hover:text-white transition-colors duration-300">Преимущества</a>
+          <a href="#pricing" class="text-slate-400 hover:text-white transition-colors duration-300">Тарифы</a>
+          <a href="#devices" class="text-slate-400 hover:text-white transition-colors duration-300">Устройства</a>
+          <a href="#connect" class="text-slate-400 hover:text-white transition-colors duration-300">Подключение</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="https://t.me/the_nexusvpn_bot"
+             class="hidden sm:inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25">
+            Подключиться
+          </a>
+          <button id="burger" class="md:hidden text-white p-1" aria-label="Меню">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="mobileMenu" class="hidden max-w-6xl mx-auto mt-2 nav-glass rounded-2xl p-5 md:hidden">
+        <a href="#features" class="block py-2.5 text-slate-400 hover:text-white transition-colors">Преимущества</a>
+        <a href="#pricing" class="block py-2.5 text-slate-400 hover:text-white transition-colors">Тарифы</a>
+        <a href="#devices" class="block py-2.5 text-slate-400 hover:text-white transition-colors">Устройства</a>
+        <a href="#connect" class="block py-2.5 text-slate-400 hover:text-white transition-colors">Подключение</a>
+        <a href="https://t.me/the_nexusvpn_bot" class="block mt-3 text-center bg-indigo-500 hover:bg-indigo-400 text-white py-3 rounded-xl font-semibold transition-colors">Подключиться</a>
+      </div>
+    </nav>
+
+    <!-- ========== HERO ========== -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div class="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto pt-24 pb-16">
+        <!-- Badge -->
+        <div class="reveal inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs sm:text-sm font-medium mb-8 sm:mb-10 badge-glow">
+          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span class="font-mono text-[10px] sm:text-xs tracking-widest">VLESS + Reality Protocol</span>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="mb-6 sm:mb-8">
+          <span class="reveal block text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight">Безопасный</span>
+          <span class="reveal block text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">интернет</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="reveal text-base sm:text-xl text-slate-400 max-w-lg mx-auto mb-10 sm:mb-12 leading-relaxed">
+          Защити свои данные. Быстрое подключение через Telegram&#8209;бот за&nbsp;30&nbsp;секунд.
+        </p>
+
+        <!-- CTA -->
+        <div class="reveal">
+          <a href="https://t.me/the_nexusvpn_bot"
+             class="cta-glow group inline-flex items-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl text-white font-semibold text-base sm:text-lg relative z-10">
+            <span class="relative z-10">Подключиться в Telegram</span>
+            <svg class="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Trust -->
+        <div class="reveal flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-8 gap-y-3 mt-12 sm:mt-16 text-xs sm:text-sm text-slate-500">
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Шифрование
+          </span>
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            До 1 Гбит/с
+          </span>
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            Без логов
+          </span>
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            Серверы в Европе
+          </span>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="scroll-hint absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5">
+        <span class="text-[10px] text-slate-500/80 tracking-[0.3em] uppercase font-medium select-none">Листайте</span>
+        <div class="scroll-chevrons flex flex-col items-center -space-y-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white/15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ========== FEATURES ========== -->
+    <section id="features" class="aurora relative py-20 sm:py-32">
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="reveal text-indigo-400 font-mono text-xs sm:text-sm tracking-widest text-center mb-3 sm:mb-4">ПРЕИМУЩЕСТВА</p>
+        <h2 class="reveal text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-4 sm:mb-6">Почему NEXUS VPN</h2>
+        <p class="reveal text-slate-400 text-center mb-12 sm:mb-20 max-w-md mx-auto text-base sm:text-lg">Современные технологии для вашей безопасности</p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
+          <div class="reveal glass gradient-border rounded-2xl p-6 sm:p-8">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-5 sm:mb-6">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-3">Шифрование</h3>
+            <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Протокол VLESS + Reality. Надёжная защита ваших данных с шифрованием нового поколения.</p>
+          </div>
+
+          <div class="reveal glass gradient-border rounded-2xl p-6 sm:p-8">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-5 sm:mb-6">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <h3 class="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-3">Скорость</h3>
+            <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Серверы в Европе. До 1&nbsp;Гбит/с без ограничений трафика. Стримы и игры без лагов.</p>
+          </div>
+
+          <div class="reveal glass gradient-border rounded-2xl p-6 sm:p-8 sm:col-span-2 lg:col-span-1">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-5 sm:mb-6">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+            </div>
+            <h3 class="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-3">Просто</h3>
+            <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Подключись через бот — приложение настроится автоматически. Работает на всех устройствах.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ========== DEVICES ========== -->
+    <section id="devices" class="aurora relative py-20 sm:py-32">
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="reveal text-indigo-400 font-mono text-xs sm:text-sm tracking-widest text-center mb-3 sm:mb-4">УСТРОЙСТВА</p>
+        <h2 class="reveal text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-4 sm:mb-6">Все ваши устройства</h2>
+        <p class="reveal text-slate-400 text-center mb-12 sm:mb-20 max-w-lg mx-auto text-base sm:text-lg">Одна подписка — до 5 устройств одновременно. Работает на любой платформе.</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
+          <!-- iPhone -->
+          <div class="reveal device-card rounded-2xl p-5 sm:p-6 text-center">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-slate-800/50 flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+            </div>
+            <h4 class="text-white font-semibold text-sm sm:text-base mb-1">iPhone / iPad</h4>
+            <p class="text-slate-500 text-[11px] sm:text-xs">Happ, Streisand</p>
+          </div>
+
+          <!-- Android -->
+          <div class="reveal device-card rounded-2xl p-5 sm:p-6 text-center">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-slate-800/50 flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+            </div>
+            <h4 class="text-white font-semibold text-sm sm:text-base mb-1">Android</h4>
+            <p class="text-slate-500 text-[11px] sm:text-xs">Happ, V2rayNG</p>
+          </div>
+
+          <!-- Windows -->
+          <div class="reveal device-card rounded-2xl p-5 sm:p-6 text-center">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-slate-800/50 flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+            </div>
+            <h4 class="text-white font-semibold text-sm sm:text-base mb-1">Windows</h4>
+            <p class="text-slate-500 text-[11px] sm:text-xs">Hiddify, Nekoray</p>
+          </div>
+
+          <!-- macOS -->
+          <div class="reveal device-card rounded-2xl p-5 sm:p-6 text-center">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-slate-800/50 flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+            </div>
+            <h4 class="text-white font-semibold text-sm sm:text-base mb-1">macOS</h4>
+            <p class="text-slate-500 text-[11px] sm:text-xs">Hiddify, V2Box</p>
+          </div>
+
+          <!-- Linux -->
+          <div class="reveal device-card rounded-2xl p-5 sm:p-6 text-center col-span-2 sm:col-span-1">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-slate-800/50 flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            </div>
+            <h4 class="text-white font-semibold text-sm sm:text-base mb-1">Linux</h4>
+            <p class="text-slate-500 text-[11px] sm:text-xs">Hiddify, Nekoray</p>
+          </div>
+        </div>
+
+        <!-- Subscription info -->
+        <div class="reveal mt-10 sm:mt-14 text-center">
+          <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-500/5 border border-indigo-500/15">
+            <svg class="w-5 h-5 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="text-slate-300 text-sm">Одна подписка — <span class="text-white font-semibold">до 5 устройств</span> одновременно</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ========== PRICING ========== -->
+    <section id="pricing" class="aurora relative py-20 sm:py-32">
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="reveal text-indigo-400 font-mono text-xs sm:text-sm tracking-widest text-center mb-3 sm:mb-4">ТАРИФЫ</p>
+        <h2 class="reveal text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-4 sm:mb-6">Простая цена</h2>
+        <p class="reveal text-slate-400 text-center mb-12 sm:mb-20 max-w-sm mx-auto text-base sm:text-lg">Без скрытых платежей и ограничений</p>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <!-- 1 месяц -->
+          <div class="reveal glass gradient-border rounded-2xl p-4 sm:p-7 flex flex-col">
+            <h3 class="text-sm sm:text-lg font-semibold text-white mb-2">1 месяц</h3>
+            <div class="mb-4 sm:mb-6">
+              <span class="text-2xl sm:text-4xl font-bold text-white font-mono">99</span>
+              <span class="text-slate-500 ml-1 text-sm sm:text-lg">₽</span>
+            </div>
+            <ul class="space-y-2 sm:space-y-3 text-[11px] sm:text-sm text-slate-400 mb-5 sm:mb-8 flex-1">
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Безлимитный трафик</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>До 5 устройств</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Серверы в Европе</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Поддержка 24/7</span>
+              </li>
+            </ul>
+            <a href="https://t.me/the_nexusvpn_bot"
+               class="block text-center py-2.5 sm:py-3 rounded-xl border border-indigo-500/30 text-indigo-400 font-semibold hover:bg-indigo-500/10 transition-all duration-300 text-xs sm:text-sm">
+              Подключить
+            </a>
+          </div>
+
+          <!-- 3 месяца -->
+          <div class="reveal glass gradient-border rounded-2xl p-4 sm:p-7 flex flex-col">
+            <h3 class="text-sm sm:text-lg font-semibold text-white mb-2">3 месяца</h3>
+            <div class="mb-1">
+              <span class="text-2xl sm:text-4xl font-bold text-white font-mono">229</span>
+              <span class="text-slate-500 ml-1 text-sm sm:text-lg">₽</span>
+            </div>
+            <p class="text-[10px] sm:text-xs text-cyan-400 mb-3 sm:mb-5 font-mono tracking-wide">≈ 76 ₽/мес &middot; <span class="text-indigo-300">-23%</span></p>
+            <ul class="space-y-2 sm:space-y-3 text-[11px] sm:text-sm text-slate-400 mb-5 sm:mb-8 flex-1">
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Безлимитный трафик</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>До 5 устройств</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Серверы в Европе</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span class="text-white font-medium">Экономия 68 ₽</span>
+              </li>
+            </ul>
+            <a href="https://t.me/the_nexusvpn_bot"
+               class="block text-center py-2.5 sm:py-3 rounded-xl border border-indigo-500/30 text-indigo-400 font-semibold hover:bg-indigo-500/10 transition-all duration-300 text-xs sm:text-sm">
+              Подключить
+            </a>
+          </div>
+
+          <!-- 6 месяцев -->
+          <div class="reveal glass gradient-border rounded-2xl p-4 sm:p-7 flex flex-col">
+            <h3 class="text-sm sm:text-lg font-semibold text-white mb-2">6 месяцев</h3>
+            <div class="mb-1">
+              <span class="text-2xl sm:text-4xl font-bold text-white font-mono">399</span>
+              <span class="text-slate-500 ml-1 text-sm sm:text-lg">₽</span>
+            </div>
+            <p class="text-[10px] sm:text-xs text-cyan-400 mb-3 sm:mb-5 font-mono tracking-wide">≈ 67 ₽/мес &middot; <span class="text-indigo-300">-33%</span></p>
+            <ul class="space-y-2 sm:space-y-3 text-[11px] sm:text-sm text-slate-400 mb-5 sm:mb-8 flex-1">
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Безлимитный трафик</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>До 5 устройств</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Серверы в Европе</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span class="text-white font-medium">Экономия 195 ₽</span>
+              </li>
+            </ul>
+            <a href="https://t.me/the_nexusvpn_bot"
+               class="block text-center py-2.5 sm:py-3 rounded-xl border border-indigo-500/30 text-indigo-400 font-semibold hover:bg-indigo-500/10 transition-all duration-300 text-xs sm:text-sm">
+              Подключить
+            </a>
+          </div>
+
+          <!-- 12 месяцев -->
+          <div class="reveal relative glass rounded-2xl p-4 sm:p-7 flex flex-col border-indigo-500/30" style="box-shadow: 0 0 80px rgba(99,102,241,0.08)">
+            <div class="absolute -top-3 sm:-top-3.5 left-1/2 -translate-x-1/2">
+              <span class="badge-popular text-white text-[10px] sm:text-xs font-bold px-3.5 sm:px-5 py-1 sm:py-1.5 rounded-full tracking-wide whitespace-nowrap">ВЫГОДНО</span>
+            </div>
+            <h3 class="text-sm sm:text-lg font-semibold text-white mb-2">12 месяцев</h3>
+            <div class="mb-1">
+              <span class="text-2xl sm:text-4xl font-bold text-white font-mono">649</span>
+              <span class="text-slate-500 ml-1 text-sm sm:text-lg">₽</span>
+            </div>
+            <p class="text-[10px] sm:text-xs text-cyan-400 mb-3 sm:mb-5 font-mono tracking-wide">≈ 54 ₽/мес &middot; <span class="text-indigo-300">-45%</span></p>
+            <ul class="space-y-2 sm:space-y-3 text-[11px] sm:text-sm text-slate-400 mb-5 sm:mb-8 flex-1">
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Безлимитный трафик</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>До 5 устройств</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Серверы в Европе</span>
+              </li>
+              <li class="flex items-center gap-1.5 sm:gap-2">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                <span class="text-white font-medium">Экономия 539 ₽</span>
+              </li>
+            </ul>
+            <a href="https://t.me/the_nexusvpn_bot"
+               class="block text-center py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold hover:opacity-90 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 text-xs sm:text-sm">
+              Подключить
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ========== HOW TO CONNECT ========== -->
+    <section id="connect" class="aurora relative py-20 sm:py-32">
+      <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="reveal text-indigo-400 font-mono text-xs sm:text-sm tracking-widest text-center mb-3 sm:mb-4">ПОДКЛЮЧЕНИЕ</p>
+        <h2 class="reveal text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-4 sm:mb-6">Как подключиться</h2>
+        <p class="reveal text-slate-400 text-center mb-12 sm:mb-20 max-w-sm mx-auto text-base sm:text-lg">Четыре шага — и вы защищены</p>
+
+        <div class="max-w-2xl mx-auto space-y-5 sm:space-y-8">
+          <div class="reveal relative flex gap-4 sm:gap-6">
+            <div class="relative flex flex-col items-center">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                <span class="text-indigo-400 font-bold font-mono text-xs sm:text-sm">01</span>
+              </div>
+              <div class="w-px flex-1 bg-gradient-to-b from-indigo-500/30 to-transparent mt-3 sm:mt-4"></div>
+            </div>
+            <div class="pb-3 sm:pb-6">
+              <h3 class="text-white font-semibold text-sm sm:text-lg mb-1">Открой бота</h3>
+              <p class="text-slate-400 text-xs sm:text-base">Перейди в <a href="https://t.me/the_nexusvpn_bot" class="text-indigo-400 hover:text-indigo-300 transition-colors underline decoration-indigo-400/30 underline-offset-4">@the_nexusvpn_bot</a> и нажми /start</p>
+            </div>
+          </div>
+
+          <div class="reveal relative flex gap-4 sm:gap-6">
+            <div class="relative flex flex-col items-center">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                <span class="text-indigo-400 font-bold font-mono text-xs sm:text-sm">02</span>
+              </div>
+              <div class="w-px flex-1 bg-gradient-to-b from-indigo-500/30 to-transparent mt-3 sm:mt-4"></div>
+            </div>
+            <div class="pb-3 sm:pb-6">
+              <h3 class="text-white font-semibold text-sm sm:text-lg mb-1">Выбери тариф</h3>
+              <p class="text-slate-400 text-xs sm:text-base">Нажми «Подключиться» и выбери подходящий план</p>
+            </div>
+          </div>
+
+          <div class="reveal relative flex gap-4 sm:gap-6">
+            <div class="relative flex flex-col items-center">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
+                <span class="text-cyan-400 font-bold font-mono text-xs sm:text-sm">03</span>
+              </div>
+              <div class="w-px flex-1 bg-gradient-to-b from-cyan-500/30 to-transparent mt-3 sm:mt-4"></div>
+            </div>
+            <div class="pb-3 sm:pb-6">
+              <h3 class="text-white font-semibold text-sm sm:text-lg mb-1">Установи приложение</h3>
+              <p class="text-slate-400 text-xs sm:text-base">Скачай <a href="https://www.happ.su" class="text-indigo-400 hover:text-indigo-300 transition-colors underline decoration-indigo-400/30 underline-offset-4">Happ</a> (iOS/Android) или <a href="https://hiddify.com" class="text-indigo-400 hover:text-indigo-300 transition-colors underline decoration-indigo-400/30 underline-offset-4">Hiddify</a> (Windows/Mac)</p>
+            </div>
+          </div>
+
+          <div class="reveal relative flex gap-4 sm:gap-6">
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold text-sm sm:text-lg mb-1">Готово!</h3>
+              <p class="text-slate-400 text-xs sm:text-base">Скопируй ссылку подписки из бота — приложение подхватит автоматически</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ========== FINAL CTA ========== -->
+    <section class="relative py-20 sm:py-32">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal glass rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 text-center relative overflow-hidden" style="box-shadow: 0 0 120px rgba(99,102,241,0.06)">
+          <div class="absolute inset-0 opacity-50">
+            <div class="absolute w-64 sm:w-96 h-64 sm:h-96 -top-32 sm:-top-48 -left-32 sm:-left-48 bg-indigo-500/10 rounded-full blur-[80px] sm:blur-[100px]"></div>
+            <div class="absolute w-64 sm:w-96 h-64 sm:h-96 -bottom-32 sm:-bottom-48 -right-32 sm:-right-48 bg-cyan-500/10 rounded-full blur-[80px] sm:blur-[100px]"></div>
+          </div>
+          <div class="relative z-10">
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5">Готов к безопасному интернету?</h2>
+            <p class="text-slate-400 mb-8 sm:mb-10 max-w-md mx-auto text-sm sm:text-lg">Подключение занимает 30 секунд. Никаких сложных настроек.</p>
+            <a href="https://t.me/the_nexusvpn_bot"
+               class="cta-glow group inline-flex items-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl text-white font-semibold text-base sm:text-lg relative z-10">
+              <span class="relative z-10">Начать в Telegram</span>
+              <svg class="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== STICKY MOBILE CTA ========== -->
+    <div id="mobileCta" class="mobile-sticky-cta md:hidden">
+      <a href="https://t.me/the_nexusvpn_bot"
+         class="flex items-center justify-center gap-2 w-full py-3.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl text-white font-semibold text-base shadow-lg shadow-indigo-500/20">
+        <span>Подключиться в Telegram</span>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="border-t border-white/5">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 pb-24 sm:pb-14">
+        <!-- Engineering team -->
+        <div class="text-center mb-10 sm:mb-12">
+          <div class="inline-flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span class="text-indigo-400 font-mono text-xs tracking-widest uppercase">Инженерия безопасности</span>
+          </div>
+          <p class="text-slate-500 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
+            NEXUS VPN разработан командой инженеров, специализирующихся на сетевой безопасности. Мы используем протокол VLESS + Reality — одно из самых современных решений для защиты данных. Серверная инфраструктура проходит регулярный аудит и обновление.
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="text-center sm:text-left">
+            <span class="text-white font-bold tracking-[0.2em]">NEXUS <span class="text-indigo-400">VPN</span></span>
+            <p class="text-slate-500 text-xs sm:text-sm mt-1">Сервис защиты данных</p>
+          </div>
+          <div class="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
+            <a href="/oferta.html" class="text-slate-400 hover:text-white transition-colors duration-300">Оферта</a>
+            <span class="text-slate-700">|</span>
+            <a href="/privacy.html" class="text-slate-400 hover:text-white transition-colors duration-300">Конфиденциальность</a>
+            <span class="text-slate-700">|</span>
+            <a href="https://t.me/the_nexusvpn_bot" class="text-slate-400 hover:text-white transition-colors duration-300">Поддержка</a>
+          </div>
+        </div>
+        <div class="mt-8 pt-8 border-t border-white/5 text-center text-[11px] sm:text-xs text-slate-600">
+          &copy; <script>document.write(new Date().getFullYear())</script> ИП Смирнов Алексей Андреевич &middot; ИНН 165612786655 &middot; ОГРНИП 324169000006714 &middot; <a href="https://pd.rkn.gov.ru/operators-registry/operators-list/" target="_blank" rel="noopener" class="hover:text-slate-400 transition-colors duration-300">Реестр операторов ПД №100271908</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth < 768;
+  </script>
+
+  <!-- Three.js + Vanta.js NET — load only on desktop -->
+  <script>
+    if (!isMobile && !reducedMotion) {
+      const s1 = document.createElement('script');
+      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js';
+      s1.onload = function() {
+        const s2 = document.createElement('script');
+        s2.src = 'https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js';
+        s2.onload = function() {
+          try {
+            VANTA.NET({
+              el: "#vanta-bg",
+              mouseControls: true,
+              touchControls: false,
+              gyroControls: false,
+              minHeight: 200,
+              minWidth: 200,
+              scale: 1.0,
+              color: 0x6366f1,
+              backgroundColor: 0x050a18,
+              points: 9,
+              maxDistance: 23,
+              spacing: 17,
+              showDots: true,
+            });
+          } catch(e) {}
+        };
+        document.head.appendChild(s2);
+      };
+      document.head.appendChild(s1);
+    }
+  </script>
+
+  <script>
+    // ===== NETWORK SIGNAL PULSES (desktop only) =====
+    if (!isMobile && !reducedMotion) {
+      const pulseCanvas = document.getElementById('pulse-canvas');
+      const pCtx = pulseCanvas.getContext('2d');
+
+      function resizePulseCanvas() {
+        pulseCanvas.width = window.innerWidth;
+        pulseCanvas.height = window.innerHeight;
+      }
+      resizePulseCanvas();
+      window.addEventListener('resize', resizePulseCanvas);
+
+      const gridSpacing = 80;
+      let netNodes = [];
+      let netEdges = [];
+
+      function buildNetwork() {
+        netNodes = [];
+        netEdges = [];
+        const cols = Math.ceil(pulseCanvas.width / gridSpacing) + 2;
+        const rows = Math.ceil(pulseCanvas.height / gridSpacing) + 2;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            netNodes.push({
+              x: c * gridSpacing + (Math.random() - 0.5) * gridSpacing * 0.4,
+              y: r * gridSpacing + (Math.random() - 0.5) * gridSpacing * 0.4,
+            });
+          }
+        }
+        const maxConn = gridSpacing * 1.6;
+        for (let i = 0; i < netNodes.length; i++) {
+          for (let j = i + 1; j < netNodes.length; j++) {
+            const dx = netNodes[i].x - netNodes[j].x;
+            const dy = netNodes[i].y - netNodes[j].y;
+            if (Math.abs(dx) < maxConn && Math.abs(dy) < maxConn) {
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < maxConn) netEdges.push({ from: i, to: j, dist });
+            }
+          }
+        }
+      }
+      buildNetwork();
+
+      class Signal {
+        constructor() { this.reset(true); }
+        reset(init) {
+          const edge = netEdges[Math.floor(Math.random() * netEdges.length)];
+          const dir = Math.random() > 0.5;
+          this.from = netNodes[dir ? edge.from : edge.to];
+          this.to = netNodes[dir ? edge.to : edge.from];
+          this.dist = edge.dist;
+          this.progress = 0;
+          this.speed = (0.4 + Math.random() * 0.6) / this.dist;
+          this.size = 1.2 + Math.random() * 1.2;
+          this.delay = init ? Math.random() * 300 : 30 + Math.random() * 180;
+          const h = Math.random();
+          this.r = Math.round(99 + h * (6 - 99));
+          this.g = Math.round(102 + h * (182 - 102));
+          this.b = Math.round(241 + h * (212 - 241));
+        }
+        update() {
+          if (this.delay > 0) { this.delay--; return; }
+          this.progress += this.speed;
+          if (this.progress >= 1) this.reset(false);
+        }
+        draw(ctx) {
+          if (this.delay > 0) return;
+          const x = this.from.x + (this.to.x - this.from.x) * this.progress;
+          const y = this.from.y + (this.to.y - this.from.y) * this.progress;
+          const g = ctx.createRadialGradient(x, y, 0, x, y, this.size * 8);
+          g.addColorStop(0, `rgba(${this.r},${this.g},${this.b},0.35)`);
+          g.addColorStop(0.4, `rgba(${this.r},${this.g},${this.b},0.08)`);
+          g.addColorStop(1, `rgba(${this.r},${this.g},${this.b},0)`);
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(x, y, this.size * 8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(200,210,255,0.9)';
+          ctx.beginPath();
+          ctx.arc(x, y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+          for (let i = 1; i <= 3; i++) {
+            const tp = this.progress - 0.04 * i;
+            if (tp < 0) continue;
+            const tx = this.from.x + (this.to.x - this.from.x) * tp;
+            const ty = this.from.y + (this.to.y - this.from.y) * tp;
+            ctx.fillStyle = `rgba(${this.r},${this.g},${this.b},${0.25 * (1 - i / 4)})`;
+            ctx.beginPath();
+            ctx.arc(tx, ty, this.size * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      const signals = Array.from({ length: 18 }, () => new Signal());
+      function animateSignals() {
+        pCtx.clearRect(0, 0, pulseCanvas.width, pulseCanvas.height);
+        signals.forEach(s => { s.update(); s.draw(pCtx); });
+        requestAnimationFrame(animateSignals);
+      }
+      animateSignals();
+    }
+
+    // ===== REVEAL ANIMATIONS =====
+    document.querySelectorAll('.min-h-screen .reveal').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), 400 + i * 150);
+    });
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.reveal').forEach((el, i) => {
+            setTimeout(() => el.classList.add('visible'), i * 100);
+          });
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+
+    document.querySelectorAll('section:not(.min-h-screen), footer').forEach(s => revealObserver.observe(s));
+
+    // Scroll hint hide
+    let scrollHintHidden = false;
+    const scrollHint = document.querySelector('.scroll-hint');
+    if (scrollHint) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 80 && !scrollHintHidden) {
+          scrollHint.style.opacity = '0';
+          scrollHintHidden = true;
+        } else if (window.scrollY <= 80 && scrollHintHidden) {
+          scrollHint.style.opacity = '1';
+          scrollHintHidden = false;
+        }
+      }, { passive: true });
+    }
+
+    if (reducedMotion) {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    }
+
+    // ===== MOBILE MENU =====
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    burger.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    mobileMenu.querySelectorAll('a').forEach(link =>
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'))
+    );
+
+    // ===== STICKY MOBILE CTA =====
+    if (isMobile) {
+      const mobileCta = document.getElementById('mobileCta');
+      const hero = document.querySelector('.min-h-screen');
+      const footer = document.querySelector('footer');
+      if (mobileCta && hero) {
+        const heroEnd = hero.offsetTop + hero.offsetHeight;
+        let ctaVisible = false;
+        window.addEventListener('scroll', () => {
+          const y = window.scrollY;
+          const footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+          const shouldShow = y > heroEnd - 200 && footerTop > window.innerHeight;
+          if (shouldShow !== ctaVisible) {
+            mobileCta.classList.toggle('show', shouldShow);
+            ctaVisible = shouldShow;
+          }
+        }, { passive: true });
+      }
+    }
+  </script>
+</body>
+</html>
