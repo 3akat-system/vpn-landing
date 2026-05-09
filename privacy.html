@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Политика конфиденциальности — NEXUS VPN</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    .nav-glass {
+      background: rgba(5,10,24,0.7);
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  </style>
+</head>
+<body class="bg-[#050A18] text-slate-300 font-sans antialiased">
+
+  <!-- NAV -->
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-5xl mx-auto nav-glass rounded-2xl px-5 py-3 flex items-center justify-between">
+      <a href="/" class="text-lg font-bold text-white tracking-widest cursor-pointer">
+        NEXUS <span class="text-indigo-400">VPN</span>
+      </a>
+      <a href="/"
+         class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        На главную
+      </a>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="max-w-3xl mx-auto px-4 pt-28 pb-16">
+    <h1 class="text-3xl sm:text-4xl font-bold text-white text-center mb-2">Политика конфиденциальности</h1>
+    <p class="text-slate-500 text-center mb-12">Последнее обновление: 08 мая 2026 г.</p>
+
+    <article class="space-y-8 text-sm leading-relaxed text-slate-400">
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">1. Оператор персональных данных</h2>
+        <p>Оператором персональных данных является:</p>
+        <p class="mt-3">
+          <strong class="text-white">ИП Смирнов Алексей Андреевич</strong><br>
+          ОГРНИП: 324169000006714<br>
+          ИНН: 165612786655<br>
+          Зарегистрирован: Межрайонная ИФНС №18 по Республике Татарстан<br>
+          Контакт: <a href="https://t.me/salxry" class="text-indigo-400 hover:text-indigo-300 transition-colors">@salxry</a> (Telegram)
+        </p>
+        <p class="mt-3">Оператор зарегистрирован в Реестре операторов персональных данных Роскомнадзора в соответствии с требованиями Федерального закона от 27.07.2006 № 152-ФЗ «О персональных данных».<br>
+          Номер уведомления в реестре: <strong class="text-slate-200">100271908</strong></p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">2. Какие данные мы собираем</h2>
+        <p>При использовании сервиса NEXUS VPN через Telegram-бот (@the_nexusvpn_bot) мы обрабатываем следующие данные:</p>
+
+        <div class="mt-4 space-y-4">
+          <div class="border border-white/10 rounded-xl p-4">
+            <p class="text-white font-medium mb-2">Данные Telegram-аккаунта</p>
+            <ul class="ml-4 space-y-1 list-disc">
+              <li>Telegram ID (числовой идентификатор)</li>
+              <li>Имя пользователя (username, если указан)</li>
+              <li>Отображаемое имя (first_name)</li>
+            </ul>
+            <p class="mt-2 text-slate-500">Цель: идентификация пользователя, управление подпиской</p>
+          </div>
+
+          <div class="border border-white/10 rounded-xl p-4">
+            <p class="text-white font-medium mb-2">Данные платежей и Лицевого счёта</p>
+            <ul class="ml-4 space-y-1 list-disc">
+              <li>Сумма и дата пополнения Лицевого счёта</li>
+              <li>Текущий остаток на Лицевом счёте</li>
+              <li>История операций (пополнения, списания, реферальные бонусы)</li>
+              <li>Выбранный тарифный план при активации подписки</li>
+              <li>Идентификатор транзакции от платёжной системы</li>
+              <li>Способ оплаты (СБП, банковская карта)</li>
+            </ul>
+            <p class="mt-2 text-slate-500">Цель: исполнение договора, учёт платежей, управление Лицевым счётом, налоговая отчётность. Банковские реквизиты карты нам не передаются — они обрабатываются платёжной системой Robokassa.</p>
+          </div>
+
+          <div class="border border-white/10 rounded-xl p-4">
+            <p class="text-white font-medium mb-2">Данные подписки</p>
+            <ul class="ml-4 space-y-1 list-disc">
+              <li>Тарифный план и дата окончания</li>
+              <li>Технический идентификатор пользователя в VPN-системе</li>
+              <li>Объём использованного трафика (только итоговое значение)</li>
+            </ul>
+            <p class="mt-2 text-slate-500">Цель: предоставление и управление услугой VPN</p>
+          </div>
+        </div>
+
+        <p class="mt-4"><strong class="text-slate-200">Мы НЕ собираем:</strong> историю посещённых сайтов, содержание трафика, IP-адреса пользователей, геолокацию.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">3. Правовые основания обработки</h2>
+        <ul class="ml-5 space-y-2 list-disc">
+          <li>Исполнение договора купли-продажи (ст. 6 ч. 1 п. 5 ФЗ-152) — при обработке данных подписки и платежей</li>
+          <li>Согласие субъекта (ст. 6 ч. 1 п. 1 ФЗ-152) — при первом запуске бота пользователь даёт согласие, нажимая кнопку «Принимаю условия»</li>
+          <li>Выполнение законодательных обязательств — налоговый учёт и фискализация</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">4. Как мы храним и защищаем данные</h2>
+        <ul class="ml-5 space-y-2 list-disc">
+          <li>Данные хранятся на защищённых серверах с ограниченным доступом</li>
+          <li>Доступ к базе данных ограничен: только администратор сервиса</li>
+          <li>Соединение с сервером — только по SSH с использованием ключей (без пароля)</li>
+          <li>База данных не доступна из интернета (порты закрыты брандмауэром)</li>
+          <li>Передача данных между ботом и платёжными системами — по HTTPS (TLS 1.2+)</li>
+          <li>Резервное копирование данных выполняется периодически</li>
+        </ul>
+        <p class="mt-3">Срок хранения данных: в течение всего срока действия подписки + 5 лет для налоговых документов в соответствии с НК РФ. После этого срока данные безвозвратно удаляются.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">5. Передача данных третьим лицам</h2>
+        <p>Мы передаём минимально необходимые данные следующим сторонам:</p>
+
+        <div class="mt-4 space-y-3">
+          <div class="border border-white/10 rounded-xl p-4">
+            <p class="text-white font-medium">Robokassa (ООО «РОБОКАССА»)</p>
+            <p class="mt-1">Платёжный агрегатор. Передаём: сумму заказа, номер заказа, описание товара. Политика конфиденциальности: robokassa.ru</p>
+          </div>
+          <div class="border border-white/10 rounded-xl p-4">
+            <p class="text-white font-medium">Telegram (Telegram Messenger Inc.)</p>
+            <p class="mt-1">Платформа бота. Обрабатывает сообщения пользователя согласно своей политике конфиденциальности: telegram.org/privacy</p>
+          </div>
+          <div class="border border-white/10 rounded-xl p-4">
+            <p class="text-white font-medium">ФНС России</p>
+            <p class="mt-1">Передача данных в рамках налоговой отчётности в соответствии с требованиями законодательства РФ.</p>
+          </div>
+        </div>
+
+        <p class="mt-4">Мы не продаём и не передаём ваши данные третьим лицам в маркетинговых или рекламных целях.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">6. Ваши права</h2>
+        <p>Вы имеете право:</p>
+        <ul class="mt-3 ml-5 space-y-2 list-disc">
+          <li><strong class="text-slate-200">Получить информацию</strong> — узнать, какие данные о вас хранятся</li>
+          <li><strong class="text-slate-200">Исправить данные</strong> — если данные неверны</li>
+          <li><strong class="text-slate-200">Удалить данные</strong> — потребовать удаления персональных данных</li>
+          <li><strong class="text-slate-200">Отозвать согласие</strong> — в любой момент (при этом подписка будет прекращена)</li>
+          <li><strong class="text-slate-200">Пожаловаться</strong> — обратиться в Роскомнадзор (rkn.gov.ru)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">7. Как удалить свои данные</h2>
+        <p>Для удаления всех ваших персональных данных из нашей системы:</p>
+        <ol class="mt-3 ml-5 space-y-2 list-decimal">
+          <li>Напишите в поддержку через Telegram: <a href="https://t.me/salxry" class="text-indigo-400 hover:text-indigo-300 transition-colors">@salxry</a></li>
+          <li>Укажите ваш Telegram ID (можно узнать у <a href="https://t.me/userinfobot" class="text-indigo-400 hover:text-indigo-300 transition-colors">@userinfobot</a>)</li>
+          <li>Напишите запрос: «Прошу удалить мои персональные данные»</li>
+        </ol>
+        <p class="mt-3">Мы удалим все данные в течение 30 дней. Данные, обязательные для хранения по закону (налоговые документы), хранятся в течение установленного законом срока, после чего также удаляются.</p>
+        <p class="mt-3 p-3 border border-amber-500/20 bg-amber-500/5 rounded-lg text-amber-300/80">⚠️ Удаление данных влечёт прекращение подписки. Возврат средств за неиспользованный период — по запросу в поддержку.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">8. Cookies и аналитика</h2>
+        <p>Сайт vpn.nexus-system.ru не использует файлы cookie для отслеживания пользователей и не подключает сторонние аналитические системы (Google Analytics, Яндекс.Метрика и т.п.).</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">9. Изменения в политике</h2>
+        <p>Мы можем обновлять эту политику. При существенных изменениях уведомим пользователей через Telegram-бот. Актуальная версия всегда доступна на этой странице.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-white mb-3">10. Контакты оператора</h2>
+        <p>
+          <strong class="text-white">ИП Смирнов Алексей Андреевич</strong><br>
+          ОГРНИП: 324169000006714 · ИНН: 165612786655<br>
+          По вопросам персональных данных: <a href="https://t.me/salxry" class="text-indigo-400 hover:text-indigo-300 transition-colors">@salxry</a>
+        </p>
+      </section>
+
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/5">
+    <div class="max-w-5xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+      <a href="/" class="text-white font-bold tracking-widest cursor-pointer">NEXUS <span class="text-indigo-400">VPN</span></a>
+      <div class="flex items-center gap-6 text-slate-400">
+        <a href="/oferta.html" class="hover:text-white transition-colors cursor-pointer">Оферта</a>
+        <a href="https://t.me/the_nexusvpn_bot" class="hover:text-white transition-colors cursor-pointer">Поддержка</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
