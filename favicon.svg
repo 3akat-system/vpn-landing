@@ -1,0 +1,44 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur2"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur3"/>
+      <feMerge>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur3"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="hexGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD080"/>
+      <stop offset="40%" stop-color="#F97316"/>
+      <stop offset="80%" stop-color="#EA580C"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+    <radialGradient id="innerGlow" cx="50%" cy="38%" r="45%">
+      <stop offset="0%" stop-color="#F97316" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#F97316" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#F97316" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="#0A0A0A" rx="80"/>
+
+  <!-- Regular pointy-top hexagon, center(256,256), radius=185 -->
+  <g filter="url(#glow)">
+    <polygon
+      points="256,71 416,164 416,348 256,441 96,348 96,164"
+      fill="none"
+      stroke="url(#hexGrad)"
+      stroke-width="28"
+      stroke-linejoin="round"
+    />
+  </g>
+
+  <polygon
+    points="256,71 416,164 416,348 256,441 96,348 96,164"
+    fill="url(#innerGlow)"
+  />
+</svg>
